@@ -24,10 +24,18 @@ export default function HomeScreen() {
       
       try {
         const response = await fetch(`${API_URL}/api/streaks/${user.id}`);
-        const data = await response.json();
-        setStreak(data.current_streak || 0);
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setStreak(data.current_streak || 0);
+        } else {
+          const text = await response.text();
+          console.error(`Unexpected response from streak API (${response.status}):`, text.substring(0, 100));
+          setStreak(0);
+        }
       } catch (error) {
-        console.error('Error fetching streak:', error);
+        console.error('Network error fetching streak:', error);
       }
     }
   };

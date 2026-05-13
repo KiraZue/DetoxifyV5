@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Aler
 import { useRouter, Link } from 'expo-router';
 import { supabase } from '../../supabase';
 import { Button } from '../../components/Button';
+import { AuthBrandHeader } from '../../components/AuthBrandHeader';
+import { PasswordField } from '../../components/PasswordField';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../components/theme';
 
 export default function SignIn() {
@@ -31,8 +33,7 @@ export default function SignIn() {
       style={styles.container}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue your journey</Text>
+        <AuthBrandHeader title="Detoxify" subtitle="Sign in to your Detox journey" />
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
@@ -47,16 +48,19 @@ export default function SignIn() {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+          />
+
+          <TouchableOpacity 
+            style={styles.forgotPasswordBtn}
+            onPress={() => router.push('/forgot-password')}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
 
           <Button
             title="Sign In"
@@ -66,7 +70,7 @@ export default function SignIn() {
           />
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
+            <Text style={styles.footerText}>Don&apos;t have an account? </Text>
             <Link href="/signup" asChild>
               <TouchableOpacity>
                 <Text style={styles.linkText}>Sign Up</Text>
@@ -88,17 +92,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.lg,
     justifyContent: 'center',
-  },
-  title: {
-    fontSize: fontSize.xxxl,
-    fontWeight: fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: fontSize.lg,
-    color: colors.textLight,
-    marginBottom: spacing.xxl,
   },
   form: {
     gap: spacing.md,
@@ -123,6 +116,16 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.md,
+  },
+  forgotPasswordBtn: {
+    alignSelf: 'flex-end',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  forgotPasswordText: {
+    fontSize: fontSize.sm,
+    color: colors.primary,
+    fontWeight: fontWeight.medium,
   },
   footer: {
     flexDirection: 'row',

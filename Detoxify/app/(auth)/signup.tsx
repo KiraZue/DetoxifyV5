@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Aler
 import { useRouter, Link } from 'expo-router';
 import { supabase } from '../../supabase';
 import { Button } from '../../components/Button';
+import { AuthBrandHeader } from '../../components/AuthBrandHeader';
+import { PasswordField } from '../../components/PasswordField';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../components/theme';
 
 export default function SignUp() {
@@ -48,8 +50,7 @@ export default function SignUp() {
       style={styles.container}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Start your journey with DayBit</Text>
+        <AuthBrandHeader title="Create Account" subtitle="Start your journey with Detoxify" />
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
@@ -75,16 +76,13 @@ export default function SignUp() {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Create a password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Create a password"
+            showStrengthMeter
+          />
 
           <Button
             title="Sign Up"
@@ -116,17 +114,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.lg,
     justifyContent: 'center',
-  },
-  title: {
-    fontSize: fontSize.xxxl,
-    fontWeight: fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: fontSize.lg,
-    color: colors.textLight,
-    marginBottom: spacing.xxl,
   },
   form: {
     gap: spacing.md,

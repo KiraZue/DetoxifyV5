@@ -109,6 +109,42 @@ export const Post: React.FC<PostProps> = ({
     setIsBookmarked(!isBookmarked);
   };
 
+  const handleReport = async () => {
+    if (!postId) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+
+      if (!userId) {
+        showToast({ message: 'Please sign in to report', type: 'error' });
+        return;
+      }
+
+      console.log('Attempting to report post:', { postId, userId });
+
+      const { data, error } = await supabase
+        .from('reports')
+        .insert([
+          { 
+            post_id: postId, 
+            reporter_id: userId,
+            reason: 'Reported by user'
+          }
+        ])
+        .select();
+
+      console.log('Supabase Report Response:', { data, error });
+
+      if (error) throw error;
+
+      showToast({ message: '🌿 Report sent for review', type: 'success', icon: 'shield-checkmark' });
+    } catch (error) {
+      console.error('Error reporting post:', error);
+      showToast({ message: 'Failed to send report', type: 'error' });
+    }
+  };
+
   return (
     <>
       <Card style={[styles.container, style]}>
@@ -195,6 +231,7 @@ export const Post: React.FC<PostProps> = ({
         visible={showOptions}
         onClose={() => setShowOptions(false)}
         onBookmark={handleBookmark}
+        onReport={handleReport}
         isBookmarked={isBookmarked}
       />
     </>

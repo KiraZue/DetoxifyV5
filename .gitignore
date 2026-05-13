@@ -1,0 +1,8 @@
+DetoxifyBackend/
+.DS_Store
+node_modules/
+.expo/
+dist/
+.next/
+.env*
+! .env.example

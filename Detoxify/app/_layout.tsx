@@ -23,25 +23,50 @@ function MainLayout() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setInitialized(true);
+      
+      if (event === 'PASSWORD_RECOVERY') {
+        router.replace('/reset-password');
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!initialized || !navigationState?.key) return;
 
-    const inAuthGroup = segments.length > 0 && segments[0] === '(auth)';
+    useEffect(() => {
+      if (session) {
+        const checkBanStatus = async () => {
+          const { data } = await supabase
+            .from('profiles')
+            .select('is_banned')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (data?.is_banned) {
+            await supabase.auth.signOut();
+            alert('Your account has been suspended for violating community guidelines.');
+            router.replace('/signin');
+          }
+        };
+        checkBanStatus();
+      }
+    }, [session]);
 
-    if (!session && !inAuthGroup && segments.length > 0) {
-      router.replace('/signin');
-    } else if (session && inAuthGroup) {
-      router.replace('/(tabs)');
-    }
-  }, [session, initialized, segments, navigationState?.key]);
+    useEffect(() => {
+      if (!initialized || !navigationState?.key) return;
+
+      const inAuthGroup = segments.length > 0 && segments[0] === '(auth)';
+      const isResetPassword = segments.some((segment) => segment === 'reset-password');
+
+      if (!session && !inAuthGroup && segments.length > 0) {
+        router.replace('/signin');
+      } else if (session && inAuthGroup && !isResetPassword) {
+        router.replace('/(tabs)');
+      }
+    }, [session, initialized, segments, navigationState?.key]);
 
   if (!initialized) return null;
 

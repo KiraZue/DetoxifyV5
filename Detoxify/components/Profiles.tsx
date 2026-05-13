@@ -12,6 +12,9 @@ import {
   ScrollView,
   Dimensions,
   Switch,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +29,10 @@ import { useTheme } from './ThemeContext';
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - spacing.xl * 2 - spacing.md) / 2;
 
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 export const Profiles = () => {
   const { showToast } = useNotification();
   const { isDarkMode, toggleTheme, colors: themeColors } = useTheme();
@@ -37,6 +44,17 @@ export const Profiles = () => {
   const [userPosts, setUserPosts] = useState<any[]>([]);
 
   const [themeExpanded, setThemeExpanded] = useState(false);
+  const [helpExpanded, setHelpExpanded] = useState(false);
+
+  const toggleThemeExpanded = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setThemeExpanded((v) => !v);
+  };
+
+  const toggleHelpExpanded = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setHelpExpanded((v) => !v);
+  };
 
   useEffect(() => {
     getProfile();
@@ -245,7 +263,7 @@ export const Profiles = () => {
           <View style={styles.modalContent}>
             <TouchableOpacity 
               style={styles.settingItem} 
-              onPress={() => setThemeExpanded(!themeExpanded)}
+              onPress={toggleThemeExpanded}
             >
               <View style={styles.settingLeft}>
                 <Ionicons name="color-palette-outline" size={22} color={themeColors.text} />
@@ -283,13 +301,28 @@ export const Profiles = () => {
               <Ionicons name="chevron-forward" size={20} color={themeColors.textMuted} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.settingItem, { borderBottomColor: themeColors.border }]}>
+            <TouchableOpacity
+              style={[styles.settingItem, { borderBottomColor: themeColors.border }]}
+              onPress={toggleHelpExpanded}
+            >
               <View style={styles.settingLeft}>
                 <Ionicons name="help-circle-outline" size={22} color={themeColors.text} />
                 <Text style={[styles.settingText, { color: themeColors.text }]}>Help & Support</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={themeColors.textMuted} />
+              <Ionicons
+                name={helpExpanded ? 'chevron-down' : 'chevron-forward'}
+                size={20}
+                color={themeColors.textMuted}
+              />
             </TouchableOpacity>
+
+            {helpExpanded && (
+              <View style={[styles.expandedSection, { backgroundColor: themeColors.surface }]}>
+                <Text style={[styles.comingSoonText, { color: themeColors.textMuted }]}>
+                  Coming Soon
+                </Text>
+              </View>
+            )}
 
             <View style={styles.signOutContainer}>
               <Button 
@@ -496,6 +529,12 @@ const styles = StyleSheet.create({
   subSettingText: {
     fontSize: fontSize.md,
     color: colors.text,
+  },
+  comingSoonText: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    textAlign: 'center',
+    paddingVertical: spacing.md,
   },
   signOutContainer: {
     marginTop: spacing.xxl,
