@@ -3,7 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
 dotenv.config();
 
@@ -15,12 +15,12 @@ const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-const genAI = process.env.GEMINI_API_KEY 
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const groq = process.env.GROQ_API_KEY 
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
   : null;
 
-if (!genAI) {
-  console.warn('⚠️  WARNING: GEMINI_API_KEY is missing in .env. Chatbot will not work, but the rest of the server is running.');
+if (!groq) {
+  console.warn('⚠️  WARNING: GROQ_API_KEY is missing in .env. Chatbot will not work, but the rest of the server is running.');
 }
 
 // Initialize Storage Buckets
@@ -513,8 +513,8 @@ app.post('/api/chat', async (req, res) => {
   console.log('--- New Chat Request ---');
   const { messages } = req.body;
 
-  if (!genAI) {
-    console.error('Gemini error: genAI is not initialized');
+  if (!groq) {
+    console.error('Groq error: groq is not initialized');
     return res.status(503).json({ error: 'Chatbot service is not configured.' });
   }
 
@@ -524,40 +524,26 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash"
-    });
+    const systemPrompt = "You are Detoxify AI, a helpful assistant for a health and wellness app called Detoxify. Your goal is to help users maintain their detox routines, stay motivated, and answer questions about healthy habits. Be encouraging, concise, and professional.";
 
-    // Convert history to Gemini format (role must be 'user' or 'model')
-    let rawHistory = messages.slice(0, -1).map((m: any) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
-    
-    if (rawHistory.length > 0 && rawHistory[0].role === 'model') {
-      rawHistory.shift(); // Remove initial assistant greeting if it's the first message
-    }
-
-    const history = [
-      {
-        role: 'user',
-        parts: [{ text: "System Instruction: You are Detoxify AI, a helpful assistant for a health and wellness app called Detoxify. Your goal is to help users maintain their detox routines, stay motivated, and answer questions about healthy habits. Be encouraging, concise, and professional." }]
-      },
-      {
-        role: 'model',
-        parts: [{ text: "Understood! I am Detoxify AI and I am ready to help." }]
-      },
-      ...rawHistory
+    const formattedMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...messages.map((m: any) => ({
+        role: (m.role === 'assistant' ? 'assistant' : 'user') as 'assistant' | 'user',
+        content: m.content
+      }))
     ];
 
     const lastMessage = messages[messages.length - 1].content;
-    console.log(`Sending to Gemini: "${lastMessage.substring(0, 50)}..."`);
+    console.log(`Sending to Groq: "${lastMessage.substring(0, 50)}..."`);
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(lastMessage);
-    const responseText = result.response.text();
-    
-    console.log('Gemini responded successfully');
+    const completion = await groq.chat.completions.create({
+      messages: formattedMessages,
+      model: 'llama-3.3-70b-versatile',
+    });
+
+    const responseText = completion.choices[0]?.message?.content || "";
+    console.log('Groq responded successfully');
 
     res.json({ 
       message: { 
@@ -566,7 +552,7 @@ app.post('/api/chat', async (req, res) => {
       } 
     });
   } catch (error: any) {
-    console.error('Gemini API Error Detail:', error);
+    console.error('Groq API Error Detail:', error);
     res.status(500).json({ error: 'Failed to get response from AI', detail: error.message });
   }
 });
