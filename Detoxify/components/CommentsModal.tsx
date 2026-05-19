@@ -154,7 +154,7 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
             style={styles.replyButton}
             onPress={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
           >
-            <Text style={styles.replyButtonText}>Reply</Text>
+            <Text style={[styles.replyButtonText, { color: colors.textMuted }]}>Reply</Text>
           </TouchableOpacity>
         )}
         {replyingTo === comment.id && (

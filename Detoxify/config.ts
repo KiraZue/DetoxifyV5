@@ -7,26 +7,17 @@ const getApiUrl = () => {
     return 'http://localhost:3000';
   }
   
-  // Try to dynamically get the IP address of the machine running Expo
+  // Use development host if available (Expo Go)
   const debuggerHost = Constants.expoConfig?.hostUri;
-  console.log('Debugger Host:', debuggerHost);
-
-  if (debuggerHost) {
+  if (debuggerHost && __DEV__) {
     const ip = debuggerHost.split(':')[0];
-    const url = `http://${ip}:3000`;
-    console.log('Detected API URL:', url);
-    return url;
+    return `http://${ip}:3000`;
   }
   
-  // Fallback for Android emulator
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:3000';
-  }
-  
-  // Final fallback (Current machine IP)
-  const fallbackUrl = 'http://10.0.0.11:3000';
-  console.log('Using Fallback API URL:', fallbackUrl);
-  return fallbackUrl;
+  // PRODUCTION / APK FALLBACK: Use your laptop's current local IP
+  // Note: Change this if your laptop IP changes!
+  const productionIp = '10.0.0.12'; 
+  return `http://${productionIp}:3000`;
 };
 
 export const API_URL = getApiUrl();

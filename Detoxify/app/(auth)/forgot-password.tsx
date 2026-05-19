@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { supabase } from '../../supabase';
 import { Button } from '../../components/Button';
 import { spacing, fontSize, fontWeight, borderRadius } from '../../components/theme';
@@ -20,10 +21,13 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    // Important: redirecTo must be a deep link URL configured in Supabase
-    // Example: detoxify://reset-password
+    
+    // Dynamically create the redirect URL so it works in Expo Go and production
+    const redirectTo = Linking.createURL('reset-password');
+    console.log('Redirecting to:', redirectTo);
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'detoxify://reset-password',
+      redirectTo,
     });
 
     setLoading(false);
@@ -32,8 +36,8 @@ export default function ForgotPassword() {
       Alert.alert('Error', error.message);
     } else {
       Alert.alert(
-        'Email Sent',
-        'Check your inbox for a password reset link.',
+        'Check Your Email',
+        'We have sent a password reset link to your email address. Please click the link to return to the app and set your new password.',
         [{ text: 'OK', onPress: () => router.back() }]
       );
     }

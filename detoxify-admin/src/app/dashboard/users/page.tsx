@@ -12,7 +12,9 @@ import {
   Zap
 } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = typeof window !== 'undefined' 
+  ? `http://${window.location.hostname}:3000` 
+  : 'http://localhost:3000';
 
 type AdminUserRow = {
   id: string;
