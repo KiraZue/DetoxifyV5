@@ -525,7 +525,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       systemInstruction: "You are Detoxify AI, a helpful assistant for a health and wellness app called Detoxify. Your goal is to help users maintain their detox routines, stay motivated, and answer questions about healthy habits. Be encouraging, concise, and professional."
     });
 
