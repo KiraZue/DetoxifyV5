@@ -525,7 +525,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro"
+      model: "gemini-2.0-flash"
     });
 
     // Convert history to Gemini format (role must be 'user' or 'model')
