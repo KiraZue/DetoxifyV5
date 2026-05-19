@@ -525,16 +525,30 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash-latest",
-      systemInstruction: "You are Detoxify AI, a helpful assistant for a health and wellness app called Detoxify. Your goal is to help users maintain their detox routines, stay motivated, and answer questions about healthy habits. Be encouraging, concise, and professional."
+      model: "gemini-pro"
     });
 
     // Convert history to Gemini format (role must be 'user' or 'model')
-    // Note: Gemini requires the first message in history to be from the 'user'
-    const history = messages.slice(0, -1).map(m => ({
+    let rawHistory = messages.slice(0, -1).map((m: any) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
-    })).filter((m, i) => i > 0 || m.role === 'user'); // Remove initial assistant greeting if it's the first message
+    }));
+    
+    if (rawHistory.length > 0 && rawHistory[0].role === 'model') {
+      rawHistory.shift(); // Remove initial assistant greeting if it's the first message
+    }
+
+    const history = [
+      {
+        role: 'user',
+        parts: [{ text: "System Instruction: You are Detoxify AI, a helpful assistant for a health and wellness app called Detoxify. Your goal is to help users maintain their detox routines, stay motivated, and answer questions about healthy habits. Be encouraging, concise, and professional." }]
+      },
+      {
+        role: 'model',
+        parts: [{ text: "Understood! I am Detoxify AI and I am ready to help." }]
+      },
+      ...rawHistory
+    ];
 
     const lastMessage = messages[messages.length - 1].content;
     console.log(`Sending to Gemini: "${lastMessage.substring(0, 50)}..."`);
