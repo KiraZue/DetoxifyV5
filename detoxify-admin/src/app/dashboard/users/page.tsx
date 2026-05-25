@@ -12,9 +12,7 @@ import {
   Zap
 } from 'lucide-react';
 
-const BACKEND_URL = typeof window !== 'undefined' 
-  ? `http://${window.location.hostname}:3000` 
-  : 'http://localhost:3000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://detoxify-v5.vercel.app';
 
 type AdminUserRow = {
   id: string;

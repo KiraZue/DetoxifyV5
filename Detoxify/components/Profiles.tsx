@@ -45,6 +45,7 @@ export const Profiles = () => {
 
   const [themeExpanded, setThemeExpanded] = useState(false);
   const [helpExpanded, setHelpExpanded] = useState(false);
+  const [creditsExpanded, setCreditsExpanded] = useState(false);
 
   const toggleThemeExpanded = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -54,6 +55,11 @@ export const Profiles = () => {
   const toggleHelpExpanded = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setHelpExpanded((v) => !v);
+  };
+
+  const toggleCreditsExpanded = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCreditsExpanded((v) => !v);
   };
 
   useEffect(() => {
@@ -293,13 +299,53 @@ export const Profiles = () => {
               </View>
             )}
 
-            <TouchableOpacity style={[styles.settingItem, { borderBottomColor: themeColors.border }]}>
+            <TouchableOpacity 
+              style={[styles.settingItem, { borderBottomColor: themeColors.border }]}
+              onPress={toggleCreditsExpanded}
+            >
               <View style={styles.settingLeft}>
                 <Ionicons name="ribbon-outline" size={22} color={themeColors.text} />
                 <Text style={[styles.settingText, { color: themeColors.text }]}>Credit</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={themeColors.textMuted} />
+              <Ionicons 
+                name={creditsExpanded ? "chevron-down" : "chevron-forward"} 
+                size={20} 
+                color={themeColors.textMuted} 
+              />
             </TouchableOpacity>
+
+            {creditsExpanded && (
+              <View style={[styles.expandedSection, { backgroundColor: themeColors.surface, paddingVertical: spacing.md }]}>
+                <View style={styles.creditCategory}>
+                  <Text style={[styles.creditRole, { color: themeColors.primary }]}>FrontEnd Developer</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Francisco, Jazper</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Vega, Gabrial</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Tolentino, Ralph Jonas</Text>
+                </View>
+
+                <View style={styles.creditCategory}>
+                  <Text style={[styles.creditRole, { color: themeColors.primary }]}>UI/UX Dev</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Pablo, Anabe Prado</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Rey, Judiah</Text>
+                </View>
+
+                <View style={styles.creditCategory}>
+                  <Text style={[styles.creditRole, { color: themeColors.primary }]}>Entry-Level Frontend Developer</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Sevilla, Angel Delossantos</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Torres, Maye</Text>
+                </View>
+
+                <View style={styles.creditCategory}>
+                  <Text style={[styles.creditRole, { color: themeColors.primary }]}>Project Manager / BackEnd</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Sualog, Lord Adam</Text>
+                </View>
+
+                <View style={styles.creditCategory}>
+                  <Text style={[styles.creditRole, { color: themeColors.primary }]}>Backend Developer</Text>
+                  <Text style={[styles.creditName, { color: themeColors.text }]}>Cocoy, Carl Jeremiah</Text>
+                </View>
+              </View>
+            )}
 
             <TouchableOpacity
               style={[styles.settingItem, { borderBottomColor: themeColors.border }]}
@@ -542,5 +588,19 @@ const styles = StyleSheet.create({
   },
   signOutBtn: {
     borderColor: colors.error,
+  },
+  creditCategory: {
+    marginBottom: spacing.md,
+  },
+  creditRole: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  creditName: {
+    fontSize: fontSize.md,
+    marginBottom: 2,
   },
 });
